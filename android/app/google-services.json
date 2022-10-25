@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "362501936195",
+    "project_id": "aumiau-33da2",
+    "storage_bucket": "aumiau-33da2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362501936195:android:2e76ec6a7b63e3ee82b0f6",
+        "android_client_info": {
+          "package_name": "com.example.tcc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "362501936195-bc38dnhbc2iu1cs8lh8ks3eng693j41b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1lYogRLV9YYSF--chKy3OwQECA17dUqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "362501936195-bc38dnhbc2iu1cs8lh8ks3eng693j41b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
