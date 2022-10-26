@@ -29,10 +29,13 @@ class ClienteBLE implements ClienteBleAbstract {
     _estadoStream = StreamController<String>();
     _progressoStream = StreamController<SpotStatus>();
 
-    Permission.bluetooth.isDenied.then((isdenied) {
+    Permission.bluetooth.isDenied.then((isdenied) async {
+      print(isdenied);
       if (isdenied) {
-        Permission.bluetooth.request();
+        await Permission.bluetooth.request();
       }
+    }, onError: (e) {
+      print(e);
     });
   }
 
@@ -68,6 +71,7 @@ class ClienteBLE implements ClienteBleAbstract {
     _progressoStream.sink.add(SpotStatus(BleStatusEnum.blsEncontrado, 0));
 
     var conectados = await _flutterBlue.connectedDevices;
+
     if (conectados.isEmpty) {
       try {
         _progressoStream.sink.add(SpotStatus(BleStatusEnum.blsConectando, 0));

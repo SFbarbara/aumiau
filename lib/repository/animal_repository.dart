@@ -26,9 +26,6 @@ class AnimalRepository {
         col.where("usuarioId", isEqualTo: autenticado.id);
     QuerySnapshot<Map<String, dynamic>> snapshot = await ref.get();
 
-    var colu = firestore.collection("usuarios");
-    var docu = await col.doc().get();
-
     return snapshot.docs.map((e) => AnimalModel.fromJson(e.data())).toList();
   }
 
