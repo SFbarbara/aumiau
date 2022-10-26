@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tcc/models/animal_model.dart';
@@ -7,6 +6,7 @@ import 'package:tcc/pages/cadastro_usuario.dart';
 import 'package:tcc/pages/pagina_login.dart';
 import 'package:tcc/repository/animal_repository.dart';
 import 'package:tcc/repository/bluetooth/cliente_ble_abstract.dart';
+import 'package:tcc/repository/bluetooth/spot_status.dart';
 import '../app_store.dart';
 import '../repository/usuario_repository.dart';
 
@@ -18,6 +18,25 @@ class PaginaPrincipal extends StatefulWidget {
 }
 
 class _PaginaPrincipalState extends State<PaginaPrincipal> {
+  late ClienteBleAbstract ble;
+  ValueNotifier<bool> consultando = ValueNotifier(false);
+  ValueNotifier<SpotStatus> progresso =
+      ValueNotifier(SpotStatus(BleStatusEnum.blsDesconectado, 0));
+  AnimalModel? resultado;
+
+  @override
+  initState() {
+    super.initState();
+    final ble = Provider.of<ClienteBleAbstract>(context, listen: false);
+    ble.progresso.listen((value) {
+      print("PROGRESSO: $value");
+      progresso.value = value;
+    });
+    ble.estado.listen((buffer) {
+      consultando.value = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final appStore = Provider.of<AppStore>(context);
@@ -51,156 +70,180 @@ class _PaginaPrincipalState extends State<PaginaPrincipal> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      height: 200,
-                      child: Visibility(
-                        visible: appStore.autenticado.value.id != null,
-                        child: FutureBuilder<List<AnimalModel>>(
-                          future: AnimalRepository()
-                              .listar(appStore.autenticado.value),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              List<AnimalModel>? pets = snapshot.data;
-                              return Container(
-                                color: Colors.black26,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: (pets?.length ?? 0) + 1,
-                                  itemBuilder: (context, index) {
-                                    AnimalModel? pet;
-                                    if (index == 0) {
-                                      return Container(
-                                          color: Colors.grey[100],
-                                          width: 100,
-                                          child: Row(
-                                            children: [
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: const [
-                                                  Icon(Icons.pets, size: 60),
-                                                  Text(
-                                                    "Seus\nanimais",
-                                                    style:
-                                                        TextStyle(fontSize: 24),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ));
-                                    }
-
-                                    if (pets != null && pets.length > 0) {
-                                      pet = pets[index - 1];
-                                    }
-                                    return Card(
-                                        child: Container(
-                                      padding: EdgeInsets.all(8),
-                                      height: 134,
-                                      width: 200,
-                                      child: Column(
-                                        children: [
-                                          const Icon(Icons.pets, size: 60),
-                                          SizedBox(
-                                            height: 14,
-                                          ),
-                                          Text("${pet?.nome}",
-                                              style: TextStyle(fontSize: 24)),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          FittedBox(
-                                              child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              TextButton(
-                                                  onPressed: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          AlertDialog(
-                                                        title: Text(
-                                                            "Confirma excluir o animal?"),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              AnimalRepository()
-                                                                  .excluir(
-                                                                      pet!);
-                                                            },
-                                                            child: Text("Sim"),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: Text("Não"),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: Column(
-                                                    children: const [
-                                                      Icon(Icons.delete),
-                                                      Text("Excluir"),
-                                                    ],
-                                                  )),
-                                              TextButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context)
-                                                        .push(MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          CadastroAnimal(
-                                                              animal: pet),
-                                                    ));
-                                                  },
-                                                  child: Column(
-                                                    children: const [
-                                                      Icon(Icons.edit_outlined),
-                                                      Text("Alterar"),
-                                                    ],
-                                                  )),
-                                              TextButton(
-                                                  onPressed: () async {
-                                                    var ble = Provider.of<
-                                                            ClienteBleAbstract>(
-                                                        context);
-                                                    try {
-                                                      await ble.gravar(pet!);
-                                                    } catch (e) {
-                                                      print(e);
-                                                    }
-                                                  },
-                                                  child: Column(
-                                                    children: const [
-                                                      Icon(Icons.bluetooth),
-                                                      Text("Transmitir"),
-                                                    ],
-                                                  ))
-                                            ],
-                                          ))
-                                        ],
-                                      ),
-                                    ));
-                                  },
-                                ),
-                              );
-                            } else {
-                              return const Center(
-                                  child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation(Colors.red),
-                              ));
-                            }
-                          },
-                        ),
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      child: const Text(
+                        "Chegue a no minimo 6 metros do animal e aperte o botão de verificar para saber o telefone do dono do animal.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
                       ),
                     ),
+                    ValueListenableBuilder(
+                      valueListenable: progresso,
+                      builder: (context, value, child) =>
+                          Text("${_statuText(value)}"),
+                    ),
+                    appStore.autenticado.value.id == null
+                        ? Container()
+                        : SizedBox(
+                            height: 200,
+                            child: FutureBuilder<List<AnimalModel>>(
+                              future: AnimalRepository()
+                                  .listar(appStore.autenticado.value),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  List<AnimalModel>? pets = snapshot.data;
+                                  return Container(
+                                    color: Colors.black26,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: (pets?.length ?? 0) + 1,
+                                      itemBuilder: (context, index) {
+                                        AnimalModel? pet;
+                                        if (index == 0) {
+                                          return Container(
+                                              color: Colors.grey[100],
+                                              width: 100,
+                                              child: Row(
+                                                children: [
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: const [
+                                                      Icon(Icons.pets,
+                                                          size: 60),
+                                                      Text(
+                                                        "Seus\nanimais",
+                                                        style: TextStyle(
+                                                            fontSize: 24),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ));
+                                        }
+
+                                        if (pets != null && pets.length > 0) {
+                                          pet = pets[index - 1];
+                                        }
+                                        return Card(
+                                            child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          height: 134,
+                                          width: 200,
+                                          child: Column(
+                                            children: [
+                                              const Icon(Icons.pets, size: 60),
+                                              SizedBox(
+                                                height: 14,
+                                              ),
+                                              Text("${pet?.nome}",
+                                                  style:
+                                                      TextStyle(fontSize: 24)),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              FittedBox(
+                                                  child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (context) =>
+                                                              AlertDialog(
+                                                            title: Text(
+                                                                "Confirma excluir o animal?"),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  AnimalRepository()
+                                                                      .excluir(
+                                                                          pet!);
+                                                                },
+                                                                child:
+                                                                    Text("Sim"),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child:
+                                                                    Text("Não"),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Column(
+                                                        children: const [
+                                                          Icon(Icons.delete),
+                                                          Text("Excluir"),
+                                                        ],
+                                                      )),
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                                MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              CadastroAnimal(
+                                                                  animal: pet),
+                                                        ));
+                                                      },
+                                                      child: Column(
+                                                        children: const [
+                                                          Icon(Icons
+                                                              .edit_outlined),
+                                                          Text("Alterar"),
+                                                        ],
+                                                      )),
+                                                  TextButton(
+                                                      onPressed: () async {
+                                                        var ble = Provider.of<
+                                                                ClienteBleAbstract>(
+                                                            context);
+                                                        try {
+                                                          await ble
+                                                              .gravar(pet!);
+                                                        } catch (e) {
+                                                          print(e);
+                                                        }
+                                                      },
+                                                      child: Column(
+                                                        children: const [
+                                                          Icon(Icons.bluetooth),
+                                                          Text("Transmitir"),
+                                                        ],
+                                                      ))
+                                                ],
+                                              ))
+                                            ],
+                                          ),
+                                        ));
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  return const Center(
+                                      child: CircularProgressIndicator(
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.red),
+                                  ));
+                                }
+                              },
+                            ),
+                          ),
                     SizedBox(
                       width: 300,
                       height: 150,
@@ -214,7 +257,8 @@ class _PaginaPrincipalState extends State<PaginaPrincipal> {
                                 borderRadius: BorderRadius.circular(30)),
                           ),
                           onPressed: () async {
-                            var ble = Provider.of<ClienteBleAbstract>(context);
+                            var ble = Provider.of<ClienteBleAbstract>(context,
+                                listen: false);
                             try {
                               await ble.ler((animal) {
                                 ScaffoldMessenger.of(context)
@@ -329,5 +373,42 @@ class _PaginaPrincipalState extends State<PaginaPrincipal> {
                       )),
           );
         });
+  }
+
+  _statuText(BleStatusEnum? value) {
+    switch (value) {
+      case BleStatusEnum.blsBuscando:
+        "Buscando coleira";
+        break;
+      case BleStatusEnum.blsConectado:
+        "Coleira conectada";
+        break;
+      case BleStatusEnum.blsConectando:
+        "Conectando a coleira";
+        break;
+      case BleStatusEnum.blsConsultando:
+        "Consultando coleira";
+        break;
+      case BleStatusEnum.blsDesconectado:
+        "Coleira desconectada";
+        break;
+      case BleStatusEnum.blsDistante:
+        "Coleira distante";
+        break;
+      case BleStatusEnum.blsEncontrado:
+        "Encontrado";
+        break;
+      case BleStatusEnum.blsFalhou:
+        "Falhou conexão";
+        break;
+      case BleStatusEnum.blsNaoEncontrado:
+        "Não encontrado";
+        break;
+      case BleStatusEnum.blsTransmitindo:
+        "Trasmitindo informações";
+        break;
+
+      default:
+    }
   }
 }
