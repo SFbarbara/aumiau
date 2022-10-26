@@ -58,6 +58,22 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
                     pusuario.nome = value;
                   },
                 ),
+                /*InputField(
+                  "Telefone",
+                  Icons.phone,
+                  false,
+                  //inputType: ,
+                  initialValue: pusuario.telefone,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Campo não pode ficar vazio";
+                    }
+                    return null;
+                  },
+                  onsaved: (value) {
+                    pusuario.nome = value;
+                  },
+                ),*/
                 InputField(
                   "Email",
                   Icons.mail,

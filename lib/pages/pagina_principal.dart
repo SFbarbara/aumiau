@@ -78,10 +78,16 @@ class _PaginaPrincipalState extends State<PaginaPrincipal> {
                         style: TextStyle(fontSize: 20),
                       ),
                     ),
-                    ValueListenableBuilder(
+                    ValueListenableBuilder<SpotStatus>(
                       valueListenable: progresso,
-                      builder: (context, value, child) =>
+                      builder: (context, value, child) => Column(
+                        children: [
                           Text("${_statuText(value)}"),
+                          CircularProgressIndicator(
+                            value: value.progresso + 0.0,
+                          )
+                        ],
+                      ),
                     ),
                     appStore.autenticado.value.id == null
                         ? Container()
@@ -375,38 +381,37 @@ class _PaginaPrincipalState extends State<PaginaPrincipal> {
         });
   }
 
-  _statuText(BleStatusEnum? value) {
-    switch (value) {
+  _statuText(SpotStatus value) {
+    switch (value.status) {
       case BleStatusEnum.blsBuscando:
-        "Buscando coleira";
-        break;
+        return "Buscando coleira";
+
       case BleStatusEnum.blsConectado:
-        "Coleira conectada";
-        break;
+        return "Coleira conectada";
+
       case BleStatusEnum.blsConectando:
-        "Conectando a coleira";
-        break;
+        return "Conectando a coleira";
+
       case BleStatusEnum.blsConsultando:
-        "Consultando coleira";
-        break;
+        return "Consultando coleira";
+
       case BleStatusEnum.blsDesconectado:
-        "Coleira desconectada";
-        break;
+        return "Coleira desconectada";
+
       case BleStatusEnum.blsDistante:
-        "Coleira distante";
-        break;
+        return "Coleira distante";
+
       case BleStatusEnum.blsEncontrado:
-        "Encontrado";
-        break;
+        return "Encontrado";
+
       case BleStatusEnum.blsFalhou:
-        "Falhou conexão";
-        break;
+        return "Falhou conexão";
+
       case BleStatusEnum.blsNaoEncontrado:
-        "Não encontrado";
-        break;
+        return "Não encontrado";
+
       case BleStatusEnum.blsTransmitindo:
-        "Trasmitindo informações";
-        break;
+        return "Trasmitindo informações";
 
       default:
     }

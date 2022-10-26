@@ -26,7 +26,7 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
     if (widget.animal != null) {
       animal = widget.animal!;
     } else {
-      animal = AnimalModel(usuarioId: appStore.autenticado.value.id!, nome: "");
+      animal = AnimalModel(usuario: appStore.autenticado.value, nome: "");
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tcc/models/animal_model.dart';
 import 'package:tcc/models/usuario_model.dart';
+import 'package:tcc/repository/usuario_repository.dart';
 
 class AnimalRepository {
   Future<void> salvar(AnimalModel animal) async {
@@ -24,6 +25,10 @@ class AnimalRepository {
     Query<Map<String, dynamic>> ref =
         col.where("usuarioId", isEqualTo: autenticado.id);
     QuerySnapshot<Map<String, dynamic>> snapshot = await ref.get();
+
+    var colu = firestore.collection("usuarios");
+    var docu = await col.doc().get();
+
     return snapshot.docs.map((e) => AnimalModel.fromJson(e.data())).toList();
   }
 

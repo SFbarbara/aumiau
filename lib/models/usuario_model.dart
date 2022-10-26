@@ -24,4 +24,8 @@ class UsuarioModel {
       "email": this.email
     };
   }
+
+  String toString() {
+    return "$nome $telefone";
+  }
 }
