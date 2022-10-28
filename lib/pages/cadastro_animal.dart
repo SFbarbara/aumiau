@@ -36,67 +36,70 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
       appBar: AppBar(
         title: const Text("Cadastro do animal"),
       ),
-      body: Form(
-        key: _key,
-        child: Column(
-          children: [
-            InputField(
-              "Nome",
-              Icons.autofps_select_sharp,
-              false,
-              initialValue: animal.nome,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Campo não pode ficar vazio";
-                }
-                return null;
-              },
-              onsaved: (value) {
-                animal.nome = value;
-              },
-            ),
-            Row(
-              children: [
-                gravando
-                    ? const Expanded(
-                        child: Center(
-                          child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation(Colors.red)),
-                        ),
-                      )
-                    : Expanded(
-                        child: ElevatedButton.icon(
-                            onPressed: () async {
-                              if (_key.currentState!.validate()) {
-                                _key.currentState!.save();
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Form(
+          key: _key,
+          child: Column(
+            children: [
+              InputField(
+                "Nome",
+                Icons.autofps_select_sharp,
+                false,
+                initialValue: animal.nome,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Campo não pode ficar vazio";
+                  }
+                  return null;
+                },
+                onsaved: (value) {
+                  animal.nome = value;
+                },
+              ),
+              Row(
+                children: [
+                  gravando
+                      ? const Expanded(
+                          child: Center(
+                            child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation(Colors.red)),
+                          ),
+                        )
+                      : Expanded(
+                          child: ElevatedButton.icon(
+                              onPressed: () async {
+                                if (_key.currentState!.validate()) {
+                                  _key.currentState!.save();
 
-                                setState(() {
-                                  gravando = true;
-                                });
-                                try {
-                                  await _salvarAnimal(animal);
                                   setState(() {
-                                    gravando = false;
+                                    gravando = true;
                                   });
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text(
-                                        "Cachorro cadastrado com sucesso!"),
-                                  ));
-                                } catch (e) {
-                                  setState(() {
-                                    gravando = false;
-                                  });
+                                  try {
+                                    await _salvarAnimal(animal);
+                                    setState(() {
+                                      gravando = false;
+                                    });
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                      content: Text(
+                                          "Cachorro cadastrado com sucesso!"),
+                                    ));
+                                  } catch (e) {
+                                    setState(() {
+                                      gravando = false;
+                                    });
+                                  }
+                                  Navigator.pop(context);
                                 }
-                                Navigator.pop(context);
-                              }
-                            },
-                            icon: const Icon(Icons.save),
-                            label: const Text("Salvar")),
-                      ),
-              ],
-            ),
-          ],
+                              },
+                              icon: const Icon(Icons.save),
+                              label: const Text("Salvar")),
+                        ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -58,11 +58,12 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
                     pusuario.nome = value;
                   },
                 ),
-                /*InputField(
+                InputField(
                   "Telefone",
                   Icons.phone,
                   false,
-                  //inputType: ,
+                  maxLength: 11,
+                  inputType: TextInputType.phone,
                   initialValue: pusuario.telefone,
                   validator: (value) {
                     if (value!.isEmpty) {
@@ -71,9 +72,9 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
                     return null;
                   },
                   onsaved: (value) {
-                    pusuario.nome = value;
+                    pusuario.telefone = value;
                   },
-                ),*/
+                ),
                 InputField(
                   "Email",
                   Icons.mail,
