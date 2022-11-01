@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 
 import '../app_store.dart';
@@ -62,8 +63,11 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
                   "Telefone",
                   Icons.phone,
                   false,
-                  maxLength: 11,
+                  maxLength: 14,
                   inputType: TextInputType.phone,
+                  inputFormatters: [
+                    MaskTextInputFormatter(mask: '(##)#####-####')
+                  ],
                   initialValue: pusuario.telefone,
                   validator: (value) {
                     if (value!.isEmpty) {
