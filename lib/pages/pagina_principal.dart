@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tcc/models/animal_model.dart';
@@ -295,7 +297,7 @@ class _PaginaPrincipalState extends State<PaginaPrincipal> {
                                     listen: false);
                                 try {
                                   await ble.ler((animal) {
-                                    AnimalModel an = AnimalModel.fromJson({
+                                    /*  AnimalModel an = AnimalModel.fromJson({
                                       "id": "77et1cUwLxfxohWTwtRx",
                                       "nome": "Mint",
                                     });
@@ -306,12 +308,15 @@ class _PaginaPrincipalState extends State<PaginaPrincipal> {
                                       "email": "barbara141100@hotmail.com"
                                     });
                                     an.usuario = u;
+                                    */
+                                    Map<String, dynamic> obj =
+                                        jsonDecode(animal);
                                     ScaffoldMessenger.of(context)
                                         .showMaterialBanner(MaterialBanner(
                                       backgroundColor: Colors.white,
                                       content: Center(
                                         child: Text(
-                                          an.toString(),
+                                          obj['msg'],
                                           style: TextStyle(fontSize: 20),
                                         ),
                                       ),

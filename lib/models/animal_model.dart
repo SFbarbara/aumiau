@@ -15,8 +15,12 @@ class AnimalModel {
     return AnimalModel(id: map["id"], nome: map["nome"]);
   }
 
-  Map<String, dynamic> toJson() {
-    return {"id": id, "nome": nome, "usuario": usuario!.toJson()};
+  Map<String, dynamic> toDevice() {
+    return {"pet": id, "msg": "$nome-${usuario?.nome}-${usuario?.telefone}"};
+  }
+
+  Map<String, dynamic> toFirebase() {
+    return {"pet": id, "nome": nome, "usuarioId": usuario?.id};
   }
 
   @override

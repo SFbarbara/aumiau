@@ -28,7 +28,10 @@ class AppStore {
         if (doc.exists) {
           Map<String, dynamic>? fbUser = doc.data();
           autenticado.value = UsuarioModel(
-              id: user.uid, nome: fbUser!['nome'], email: fbUser['email']);
+              id: user.uid,
+              nome: fbUser!['nome'],
+              email: fbUser['email'],
+              telefone: fbUser["telefone"]);
         } else {
           autenticado.value = UsuarioModel(id: user.uid, nome: "");
         }

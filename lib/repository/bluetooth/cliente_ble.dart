@@ -41,7 +41,7 @@ class ClienteBLE implements ClienteBleAbstract {
 
   //Procura o beacon PELOTO, conecta e lê os dados  da característica
   @override
-  Future<void> ler(Function(AnimalModel animal) resolv) async {
+  Future<void> ler(Function(String animal) resolv) async {
     await listenRxSubs?.cancel();
     await _flutterBlue.stopScan();
     await disconnectBLE();
@@ -65,7 +65,7 @@ class ClienteBLE implements ClienteBleAbstract {
 
   @override
   Future<void> lerDoDispositivo(
-      BluetoothDevice device, Function(AnimalModel animal) resolv) async {
+      BluetoothDevice device, Function(String animal) resolv) async {
     await _flutterBlue.stopScan();
     print('BLE: ${device.name} found!');
     _progressoStream.sink.add(SpotStatus(BleStatusEnum.blsEncontrado, 0));
@@ -114,11 +114,9 @@ class ClienteBLE implements ClienteBleAbstract {
           });
         } else {
           String dado = String.fromCharCodes(value);
+          print("DADO RECEBIDO: $dado");
           if (dado.contains('pet')) {
-            var obj = jsonDecode(dado);
-            AnimalModel animal = AnimalModel.fromJson(obj);
-            print(animal);
-            resolv(animal);
+            resolv(dado);
             await listenRxSubs?.cancel();
             print("BLE: fim gravacao");
             await device.disconnect();
@@ -272,7 +270,7 @@ class ClienteBLE implements ClienteBleAbstract {
           // sair caso não vier dados
           return;
         } else if (value.first == 10) {
-          String dado = json.encode(cachorro.toJson());
+          String dado = json.encode(cachorro.toDevice());
           print(dado);
 //          await txcharacteristic.setNotifyValue(true);
           Future.delayed(
