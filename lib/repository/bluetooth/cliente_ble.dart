@@ -29,10 +29,11 @@ class ClienteBLE implements ClienteBleAbstract {
     _estadoStream = StreamController<String>();
     _progressoStream = StreamController<SpotStatus>();
 
-    Permission.bluetooth.isDenied.then((isdenied) async {
-      print(isdenied);
-      if (isdenied) {
-        await Permission.bluetooth.request();
+    Permission.bluetoothScan.isGranted.then((isGranted) async {
+      print(isGranted);
+      if (!isGranted) {
+        await Permission.bluetoothScan.request();
+        await Permission.bluetoothConnect.request();
       }
     }, onError: (e) {
       print(e);
